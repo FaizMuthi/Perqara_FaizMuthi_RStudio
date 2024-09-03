@@ -1,0 +1,370 @@
+---
+title: "Perqara_Faiz Muthi"
+output: pdf_document
+date: "2024-09-02"
+---
+
+```{r}
+# Load the Data
+knitr::opts_knit$set(root.dir = '/Users/Faiz Muthi/Downloads/data')
+customers_dataset <- read.csv('/Users/Faiz Muthi/Downloads/data/customers_dataset.csv', sep=",")
+
+products_dataset <- read.csv('/Users/Faiz Muthi/Downloads/data/products_dataset.csv', sep=",")
+
+geolocation_dataset <- read.csv('/Users/Faiz Muthi/Downloads/data/geolocation_dataset.csv', sep=",")
+
+order_items_dataset <- read.csv('/Users/Faiz Muthi/Downloads/data/order_items_dataset.csv', sep=",")
+
+order_reviews_dataset <- read.csv('/Users/Faiz Muthi/Downloads/data/order_reviews_dataset.csv', sep=",")
+
+sellers_dataset <- read.csv('/Users/Faiz Muthi/Downloads/data/sellers_dataset.csv', sep=",")
+
+order_payments_dataset <- read.csv('/Users/Faiz Muthi/Downloads/data/order_payments_dataset.csv', sep=",")
+
+orders_dataset <- read.csv('/Users/Faiz Muthi/Downloads/data/orders_dataset.csv', sep=",")
+
+product_category_name_translation <- read.csv('/Users/Faiz Muthi/Downloads/data/product_category_name_translation.csv', sep=",")
+```
+
+```{r}
+# Check the structure of datasets
+str(customers_dataset)
+str(products_dataset)
+str(geolocation_dataset)
+str(order_items_dataset)
+str(order_reviews_dataset)
+str(sellers_dataset)
+str(order_payments_dataset)
+str(orders_dataset)
+str(product_category_name_translation)
+
+# Summary statistics
+summary(customers_dataset)
+summary(products_dataset)
+summary(geolocation_dataset)
+summary(order_items_dataset)
+summary(order_reviews_dataset)
+summary(sellers_dataset)
+summary(order_payments_dataset)
+summary(orders_dataset)
+
+```
+```{r}
+# Handle Missing Values
+# Drop rows with missing values
+customers_dataset <- na.omit(customers_dataset)
+products_dataset <- na.omit(products_dataset)
+geolocation_dataset <- na.omit(geolocation_dataset)
+order_items_dataset <- na.omit(order_items_dataset)
+order_reviews_dataset <- na.omit(order_reviews_dataset)
+sellers_dataset <- na.omit(sellers_dataset)
+order_payments_dataset <- na.omit(order_payments_dataset)
+orders_dataset <- na.omit(orders_dataset)
+
+# Convert date columns to Date type
+orders_dataset$order_purchase_timestamp <- as.Date(orders_dataset$order_purchase_timestamp)
+orders_dataset$order_delivered_customer_date <- as.Date(orders_dataset$order_delivered_customer_date)
+orders_dataset$order_approved_at <- as.Date(orders_dataset$order_approved_at)
+orders_dataset$order_delivered_carrier_date <- as.Date(orders_dataset$order_delivered_carrier_date)
+orders_dataset$order_estimated_delivery_date <- as.Date(orders_dataset$order_estimated_delivery_date)
+```
+
+*2. Basic Analytics*
+```{r}
+library(ggplot2)
+# Customers Dataset
+# Distribution of customer zip codes
+ggplot(customers_dataset, aes(x = customer_zip_code_prefix)) +
+  geom_histogram(bins = 30, fill = "blue", color = "black") +
+  labs(title = "Distribution of Customer Zip Codes", x = "Zip Code Prefix", y = "Frequency")
+
+# Count of customers by state
+ggplot(customers_dataset, aes(x = customer_state)) +
+  geom_bar(fill = "green", color = "black") +
+  labs(title = "Number of Customers by State", x = "State", y = "Count")
+```
+```{r}
+# Products Dataset
+# Distribution of product weights
+ggplot(products_dataset, aes(x = product_weight_g)) +
+  geom_histogram(bins = 30, fill = "orange", color = "black") +
+  labs(title = "Distribution of Product Weights", x = "Weight (g)", y = "Frequency")
+
+# Count of products by category
+ggplot(products_dataset, aes(x = product_category_name)) +
+  geom_bar(fill = "purple", color = "black") +
+  labs(title = "Number of Products by Category", x = "Product Category", y = "Count")
+```
+```{r}
+# Geolocation Dataset
+# Distribution of latitude and longitude
+ggplot(geolocation_dataset, aes(x = geolocation_lng, y = geolocation_lat)) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Geolocation of Customers", x = "Longitude", y = "Latitude")
+
+```
+```{r}
+# Order Items Dataset
+# Distribution of prices
+ggplot(order_items_dataset, aes(x = price)) +
+  geom_histogram(bins = 30, fill = "blue", color = "black") +
+  labs(title = "Distribution of Order Prices", x = "Price", y = "Frequency")
+
+# Count of items per order
+ggplot(order_items_dataset, aes(x = order_id)) +
+  geom_bar(fill = "green", color = "black") +
+  labs(title = "Number of Items per Order", x = "Order ID", y = "Count")
+```
+
+```{r}
+# Order Reviews Dataset
+# Distribution of review scores
+ggplot(order_reviews_dataset, aes(x = review_score)) +
+  geom_bar(fill = "purple", color = "black") +
+  labs(title = "Distribution of Review Scores", x = "Review Score", y = "Count")
+
+# Average review score per order
+order_reviews_avg <- order_reviews_dataset %>%
+  group_by(order_id) %>%
+  summarise(avg_review_score = mean(review_score, na.rm = TRUE))
+
+ggplot(order_reviews_avg, aes(x = avg_review_score)) +
+  geom_histogram(bins = 10, fill = "orange", color = "black") +
+  labs(title = "Average Review Score per Order", x = "Average Review Score", y = "Frequency")
+
+```
+```{r}
+# Sellers Dataset
+# Count of sellers by state
+ggplot(sellers_dataset, aes(x = seller_state)) +
+  geom_bar(fill = "blue", color = "black") +
+  labs(title = "Number of Sellers by State", x = "State", y = "Count")
+
+```
+```{r}
+# Order Payments Dataset
+# Distribution of payment values
+ggplot(order_payments_dataset, aes(x = payment_value)) +
+  geom_histogram(bins = 30, fill = "green", color = "black") +
+  labs(title = "Distribution of Payment Values", x = "Payment Value", y = "Frequency")
+
+# Payment types
+ggplot(order_payments_dataset, aes(x = payment_type)) +
+  geom_bar(fill = "purple", color = "black") +
+  labs(title = "Count of Payment Types", x = "Payment Type", y = "Count")
+
+```
+```{r}
+# Orders Dataset
+# Distribution of order statuses
+ggplot(orders_dataset, aes(x = order_status)) +
+  geom_bar(fill = "blue", color = "black") +
+  labs(title = "Count of Order Statuses", x = "Order Status", y = "Count")
+
+# Delivery times
+orders_dataset$delivery_time <- as.numeric(difftime(orders_dataset$order_delivered_customer_date, orders_dataset$order_purchase_timestamp, units = "days"))
+ggplot(orders_dataset, aes(x = delivery_time)) +
+  geom_histogram(bins = 30, fill = "orange", color = "black") +
+  labs(title = "Distribution of Delivery Times", x = "Delivery Time (days)", y = "Frequency")
+
+```
+*3. Advanced Analytics*
+```{r}
+library(dplyr)
+# Join datasets on order_id
+merged_dataset_order <- orders_dataset %>%
+  left_join(order_items_dataset, by = "order_id")
+merged_dataset_order
+```
+
+```{r}
+# Forecasting Sales
+
+library(forecast)
+library(lubridate)
+
+# Convert order_purchase_timestamp to Date type
+merged_dataset_order$order_purchase_timestamp <- as.Date(merged_dataset_order$order_purchase_timestamp)
+
+# Aggregate sales by month
+monthly_sales <- merged_dataset_order %>%
+  group_by(month = floor_date(order_purchase_timestamp, "month")) %>%
+  summarise(total_sales = sum(price, na.rm = TRUE))
+
+
+# Define the start date and frequency
+start_date <- as.Date(paste0(year(min(monthly_sales$month)), "-", month(min(monthly_sales$month)), "-01"))
+frequency <- 12  # Monthly data
+
+# Create a time series object
+sales_ts <- ts(monthly_sales$total_sales, start = c(year(start_date), month(start_date)), frequency = frequency)
+
+# Apply Holt-Winters method
+holt_winters_model <- HoltWinters(sales_ts)
+
+# Forecast the next 12 months
+forecast_values <- forecast(holt_winters_model, h = 12)
+
+# Calculate end of the series
+end_date <- seq.Date(from = start_date, by = "month", length.out = length(sales_ts))
+
+# Generate future dates
+forecast_dates <- seq.Date(from = end_date[length(end_date)] + months(1), by = "month", length.out = 12)
+
+```
+```{r}
+# Convert forecast to data frame for ggplot
+forecast_df <- data.frame(
+  Date = forecast_dates,
+  Forecast = as.numeric(forecast_values$mean),
+  Lower_80 = as.numeric(forecast_values$lower[,1]),
+  Upper_80 = as.numeric(forecast_values$upper[,1]),
+  Lower_95 = as.numeric(forecast_values$lower[,2]),
+  Upper_95 = as.numeric(forecast_values$upper[,2])
+)
+forecast_df
+# Plot the historical data and forecast
+ggplot() +
+  geom_line(data = monthly_sales, aes(x = month, y = total_sales), color = "blue") +
+  geom_line(data = forecast_df, aes(x = Date, y = Forecast), color = "red") +
+  geom_ribbon(data = forecast_df, aes(x = Date, ymin = Lower_95, ymax = Upper_95), alpha = 0.2) +
+  labs(title = "Sales Forecast from 2017 using Holt-Winters Method", x = "Date", y = "Total Sales") +
+  theme_minimal()
+```
+```{r}
+# Geoanalysis (Using geolocation_dataset):
+# install.packages("rnaturalearthdata")
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(sf)
+library(viridis)
+
+geolocation_dataset$geolocation_lat <- as.numeric(geolocation_dataset$geolocation_lat)
+geolocation_dataset$geolocation_lng <- as.numeric(geolocation_dataset$geolocation_lng)
+
+# Convert to sf object
+geolocation_sf <- st_as_sf(geolocation_dataset, 
+                           coords = c("geolocation_lng", "geolocation_lat"), 
+                           crs = 4326)
+
+# Aggregate data 
+state_data <- geolocation_sf %>%
+  group_by(geolocation_state) %>%
+  summarise(geometry = st_union(geometry), count = n())
+
+
+# Get the world map
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# Plot the map with geolocation data
+ggplot(data = world) +
+  geom_sf(fill = "lightgray") +
+  geom_sf(data = state_data, aes(size = count, color = count), alpha = 0.7) +
+  scale_color_viridis_c() +
+  labs(title = "Geolocation of Customers by State",
+       x = "Longitude",
+       y = "Latitude",
+       size = "Number of Customers",
+       color = "Number of Customers") +
+  theme_minimal()
+```
+
+```{r}
+# Outlier Detection (Using order_items_dataset):
+
+# Boxplot to detect outliers
+ggplot(order_items_dataset, aes(x = "", y = price)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Order Prices", y = "Price")
+
+# Identifying outliers
+order_items_dataset <- order_items_dataset %>%
+  mutate(is_outlier = price > quantile(price, 0.95, na.rm = TRUE))
+
+# Visualize outliers
+ggplot(order_items_dataset, aes(x = price, color = as.factor(is_outlier))) +
+  geom_histogram(bins = 30) +
+  labs(title = "Outlier Detection in Order Prices")
+
+```
+```{r}
+# RFM Analysis (Using orders_dataset):
+library(cluster)
+
+merged_dataset_order_RFM <- orders_dataset %>%
+  left_join(order_items_dataset, by = "order_id")
+merged_dataset_order_RFM
+
+# Compute RFM metrics
+rfm_data <- merged_dataset_order_RFM %>%
+  group_by(customer_id) %>%
+  summarise(
+    Recency = as.numeric(difftime(Sys.Date(), max(order_purchase_timestamp), units = "days")),
+    Frequency = n(),
+    Monetary = sum(price, na.rm = TRUE)
+  )
+
+# K-means clustering
+set.seed(123)
+rfm_clusters <- kmeans(rfm_data %>% select(Recency, Frequency, Monetary), centers = 4)
+rfm_data$cluster <- rfm_clusters$cluster
+
+# Visualize RFM clusters
+ggplot(rfm_data, aes(x = Recency, y = Monetary, color = as.factor(cluster))) +
+  geom_point() +
+  labs(title = "RFM Clustering")
+```
+*4. Generate a Model*
+```{r}
+library(randomForest)
+library(caret)
+library(ROSE)  # For balancing the dataset
+
+merged_dataset_order_generate <- orders_dataset %>%
+  left_join(order_items_dataset, by = "order_id")
+
+# Convert columns to appropriate types
+merged_dataset_order_generate <- merged_dataset_order_generate %>%
+  mutate(
+    order_purchase_timestamp = as.Date(order_purchase_timestamp),
+    order_approved_at = as.Date(order_approved_at),
+    price = as.numeric(price),
+    freight_value = as.numeric(freight_value),
+    order_status = as.factor(order_status) 
+  )
+
+# Remove rows with missing values or impute them
+merged_dataset_order_generate <- na.omit(merged_dataset_order_generate)
+
+# Balance the dataset
+balanced_data <- ovun.sample(order_status ~ price + freight_value, 
+                              data = merged_dataset_order_generate, 
+                              method = "both",  # Both oversampling and undersampling
+                              p = 0.5,  # Desired proportion
+                              seed = 123)$data
+
+# Split the balanced data
+set.seed(123)
+train_index <- createDataPartition(balanced_data$order_status, p = 0.7, list = FALSE)
+train_data <- balanced_data[train_index, ]
+test_data <- balanced_data[-train_index, ]
+
+# Train Random Forest model
+rf_model <- randomForest(order_status ~ price + freight_value, data = train_data)
+
+# Make predictions
+predictions <- predict(rf_model, test_data)
+
+# Evaluate the model
+confusionMatrix(predictions, test_data$order_status)
+
+```
+*according to the above result, Sensitivity and Positive Predictive Value for the "delivered" class are very high, but the model struggles with predicting other classes*
+
+
+
+
+
+
+
+
