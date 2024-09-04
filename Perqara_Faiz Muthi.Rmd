@@ -1,9 +1,12 @@
 ---
 title: "Perqara_Faiz Muthi"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 date: "2024-09-02"
 ---
 
+*1. Data Processing*
 ```{r}
 # Load the Data
 knitr::opts_knit$set(root.dir = '/Users/Faiz Muthi/Downloads/data')
@@ -117,6 +120,7 @@ ggplot(order_items_dataset, aes(x = order_id)) +
 ```
 
 ```{r}
+library(dplyr)
 # Order Reviews Dataset
 # Distribution of review scores
 ggplot(order_reviews_dataset, aes(x = review_score)) +
